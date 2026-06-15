@@ -1,0 +1,74 @@
+{
+  "name": "pi-memorius",
+  "version": "1.0.0",
+  "description": "🧠 Vector-powered persistent memory vault for Pi — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.",
+  "type": "module",
+  "main": "src/index.ts",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "memory",
+    "persistent-memory",
+    "vector-search",
+    "semantic-search",
+    "knowledge-graph",
+    "fact-checking",
+    "session-diaries",
+    "memory-mining",
+    "context-injection",
+    "memorius",
+    "chroma",
+    "embeddings",
+    "skills",
+    "learning-loop",
+    "obsidian"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --apply src/",
+    "format": "biome format --write src/",
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "prepublishOnly": "npm run check"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "biome check --write --unsafe",
+      "tsc --noEmit"
+    ]
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "github",
+    "url": "git+https://github.com/Dream-Pixels-Forge/pi-memorius.git"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": ">=0.74.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.0",
+    "@earendil-works/pi-coding-agent": "^0.74.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "@earendil-works/pi-ai": "^0.74.0",
+    "typebox": "^1.1.33"
+  }
+}

@@ -1,0 +1,5 @@
+src/
+!src/*.test.ts
+!src/*.extra.test.ts
+LICENSE
+README.md

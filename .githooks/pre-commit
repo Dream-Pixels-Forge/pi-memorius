@@ -1,0 +1,12 @@
+#!/bin/sh
+# Pre-commit hook for pi-memorius subdirectory
+# Installed via: git config core.hooksPath .githooks
+
+PROJECT="Dev/extension/pi-memorius"
+
+# Only run checks if pi-memorius files changed
+if git diff --cached --name-only | grep -q "^$PROJECT/"; then
+  echo "🔍 Running pi-memorius pre-commit checks..."
+  cd "$PROJECT" || exit 1
+  npm run check || exit 1
+fi
