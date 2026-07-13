@@ -2,9 +2,11 @@
   <img src="assets/banner.png" alt="pi-memorius banner" />
 </p>
 
-# 🧠 pi-memorius
+<h1 align="center">🧠 pi-memorius</h1>
 
-**Vector-powered persistent memory extension for Pi-agent** — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.
+<p align="center">
+  <strong>Vector-powered persistent memory extension for Pi-agent</strong> — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.
+</p>
 
 ## Why pi-memorius is better
 
