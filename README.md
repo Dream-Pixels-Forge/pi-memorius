@@ -4,7 +4,7 @@
 
 # 🧠 pi-memorius
 
-**Vector-powered persistent memory vault for Pi** — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.
+**Vector-powered persistent memory extension for Pi-agent** — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.
 
 ## Why pi-memorius is better
 

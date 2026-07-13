@@ -1,7 +1,7 @@
 {
   "name": "pi-memorius",
   "version": "1.0.0",
-  "description": "🧠 Vector-powered persistent memory vault for Pi — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.",
+  "description": "🧠 Vector-powered persistent memory extension for Pi-agent — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.",
   "type": "module",
   "main": "src/index.ts",
   "files": [
