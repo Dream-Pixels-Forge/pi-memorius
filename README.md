@@ -1,8 +1,10 @@
+<p align="center">
+  <img src="assets/banner.png" alt="pi-memorius banner" />
+</p>
+
 # 🧠 pi-memorius
 
 **Vector-powered persistent memory vault for Pi** — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.
-
-A better version of [pi-hermes-memory](https://pi.dev/packages/pi-hermes-memory), built on top of the [memorius](https://github.com/neolefty/memorius) vector memory engine.
 
 ## Why pi-memorius is better
 
