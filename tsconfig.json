@@ -17,8 +17,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./extensions/memorius/src"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["extensions/memorius/src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

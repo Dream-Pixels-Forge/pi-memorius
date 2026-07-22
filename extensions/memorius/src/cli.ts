@@ -1,10 +1,10 @@
 /**
  * pi-memorius — CLI execution layer
  *
- * Provides retry-capable async and sync execution of the memorius CLI.
- * Uses execFile/execFileSync (no shell) to avoid shell injection vectors.
+ * Provides retry-capable async execution of the memorius CLI.
+ * Uses execFile (no shell) to avoid shell injection vectors.
  */
-import { execFile, execFileSync } from "node:child_process";
+import { execFile } from "node:child_process";
 
 /** Maximum retries for transient CLI failures */
 const MAX_RETRIES = 2;
@@ -16,13 +16,6 @@ const CLI_TIMEOUT_MS = 30000;
 const STDIN_TIMEOUT_MS = 60000;
 /** Max buffer for CLI stdout (10 MB) */
 const MAX_BUFFER = 10 * 1024 * 1024;
-
-/**
- * Sleep synchronously for the given number of seconds.
- */
-function sleepSync(seconds: number): void {
-	execFileSync("sleep", [String(seconds)], { encoding: "utf8" });
-}
 
 /**
  * Async sleep — returns a promise that resolves after ms.
@@ -157,75 +150,6 @@ export async function execCliAsyncWithStdin(
 					`[memorius] execWithStdin retry ${attempt + 1}/${retries} after ${delay}ms`,
 				);
 				await sleepAsync(delay);
-				continue;
-			}
-			const msg = err instanceof Error ? err.message : String(err);
-			throw new Error(`memorius CLI error: ${msg}`);
-		}
-	}
-	throw new Error("memorius CLI: unreachable");
-}
-
-// ─── Sync Execution (backward compatible, no AbortSignal) ─────────────────────
-
-/**
- * Execute the memorius CLI synchronously.
- * Retries on failure with exponential backoff.
- */
-export function execCli(
-	cliPath: string,
-	args: string[],
-	retries = MAX_RETRIES,
-): string {
-	for (let attempt = 0; attempt <= retries; attempt++) {
-		try {
-			return execFileSync(cliPath, args, {
-				encoding: "utf8",
-				timeout: CLI_TIMEOUT_MS,
-				maxBuffer: MAX_BUFFER,
-			});
-		} catch (err: unknown) {
-			if (attempt < retries) {
-				const delay = RETRY_DELAY_MS * 2 ** attempt;
-				console.debug(
-					`[memorius] exec retry ${attempt + 1}/${retries} after ${delay}ms`,
-				);
-				sleepSync(Math.ceil(delay / 1000));
-				continue;
-			}
-			const msg = err instanceof Error ? err.message : String(err);
-			throw new Error(`memorius CLI error (${cliPath}): ${msg}`);
-		}
-	}
-	throw new Error("memorius CLI: unreachable");
-}
-
-/**
- * Execute the memorius CLI with stdin piped content (no shell).
- * Retries on failure with exponential backoff.
- */
-export function execCliWithStdin(
-	cliPath: string,
-	args: string[],
-	stdinContent: string,
-	timeout = STDIN_TIMEOUT_MS,
-	retries = MAX_RETRIES,
-): string {
-	for (let attempt = 0; attempt <= retries; attempt++) {
-		try {
-			return execFileSync(cliPath, args, {
-				encoding: "utf8",
-				timeout,
-				maxBuffer: MAX_BUFFER,
-				input: stdinContent,
-			});
-		} catch (err: unknown) {
-			if (attempt < retries) {
-				const delay = RETRY_DELAY_MS * 2 ** attempt;
-				console.debug(
-					`[memorius] execWithStdin retry ${attempt + 1}/${retries} after ${delay}ms`,
-				);
-				sleepSync(Math.ceil(delay / 1000));
 				continue;
 			}
 			const msg = err instanceof Error ? err.message : String(err);

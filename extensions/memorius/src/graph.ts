@@ -171,6 +171,49 @@ export class GraphManager {
 		return true;
 	}
 
+	// ─── Pruning ─────────────────────────────────────────────────────────────
+
+	/**
+	 * Prune old memory nodes (mem_*) that haven't been updated recently.
+	 * @param maxAgeMs Maximum age in milliseconds (default: 30 days)
+	 * @param dryRun If true, return what would be pruned without modifying
+	 */
+	prune(
+		maxAgeMs = 30 * 24 * 60 * 60 * 1000,
+		dryRun = false,
+	): { pruned: number; kept: number } {
+		const cutoff = Date.now() - maxAgeMs;
+		const memNodeIds = Object.keys(this.graph.nodes).filter(
+			(id) => id.startsWith("mem_") && this.graph.nodes[id].updated < cutoff,
+		);
+
+		if (dryRun) {
+			return {
+				pruned: memNodeIds.length,
+				kept: Object.keys(this.graph.nodes).length - memNodeIds.length,
+			};
+		}
+
+		for (const id of memNodeIds) {
+			delete this.graph.nodes[id];
+		}
+
+		// Remove edges referencing pruned nodes
+		const prunedSet = new Set(memNodeIds);
+		this.graph.edges = this.graph.edges.filter(
+			(e) => !prunedSet.has(e.source) && !prunedSet.has(e.target),
+		);
+
+		if (memNodeIds.length > 0) {
+			this.scheduleSave();
+		}
+
+		return {
+			pruned: memNodeIds.length,
+			kept: Object.keys(this.graph.nodes).length,
+		};
+	}
+
 	// ─── Edge Operations ─────────────────────────────────────────────────────
 
 	/**

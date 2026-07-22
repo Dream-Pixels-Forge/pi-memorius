@@ -153,4 +153,66 @@ describe("GraphManager", () => {
 		expect(node).toBeDefined();
 		expect(node?.label).toBe("Will survive reload");
 	});
+
+	describe("pruning", () => {
+		it("prunes old mem_* nodes", () => {
+			// Add old memory node (simulated by setting updated to past)
+			graph.addNode("mem_old", "Old memory", "memory");
+			graph.addNode("mem_new", "New memory", "memory");
+			graph.addNode("entity-1", "Important entity", "entity");
+
+			// Manually set the old node's updated time to 31 days ago
+			const fullGraph = graph.getFullGraph();
+			fullGraph.nodes.mem_old.updated = Date.now() - 31 * 24 * 60 * 60 * 1000;
+
+			const result = graph.prune(30 * 24 * 60 * 60 * 1000);
+			expect(result.pruned).toBe(1);
+			expect(result.kept).toBe(2);
+			expect(graph.getNode("mem_old")).toBeUndefined();
+			expect(graph.getNode("mem_new")).toBeDefined();
+			expect(graph.getNode("entity-1")).toBeDefined();
+		});
+
+		it("prunes edges when node is pruned", () => {
+			graph.addNode("mem_old", "Old memory", "memory");
+			graph.addNode("entity-1", "Entity", "entity");
+			graph.addEdge("entity-1", "mem_old", "mentioned_in");
+
+			const fullGraph = graph.getFullGraph();
+			fullGraph.nodes.mem_old.updated = Date.now() - 31 * 24 * 60 * 60 * 1000;
+
+			graph.prune(30 * 24 * 60 * 60 * 1000);
+			const edges = graph.getEdges("entity-1");
+			expect(edges.outgoing).toHaveLength(0);
+		});
+
+		it("dry run does not modify graph", () => {
+			graph.addNode("mem_old", "Old memory", "memory");
+			const fullGraph = graph.getFullGraph();
+			fullGraph.nodes.mem_old.updated = Date.now() - 31 * 24 * 60 * 60 * 1000;
+
+			const result = graph.prune(30 * 24 * 60 * 60 * 1000, true);
+			expect(result.pruned).toBe(1);
+			expect(graph.getNode("mem_old")).toBeDefined();
+		});
+
+		it("does not prune non-memory nodes", () => {
+			graph.addNode("entity-old", "Old entity", "entity");
+			const fullGraph = graph.getFullGraph();
+			fullGraph.nodes["entity-old"].updated =
+				Date.now() - 31 * 24 * 60 * 60 * 1000;
+
+			const result = graph.prune(30 * 24 * 60 * 60 * 1000);
+			expect(result.pruned).toBe(0);
+			expect(result.kept).toBe(1);
+		});
+
+		it("does not prune recent mem_* nodes", () => {
+			graph.addNode("mem_recent", "Recent memory", "memory");
+
+			const result = graph.prune(30 * 24 * 60 * 60 * 1000);
+			expect(result.pruned).toBe(0);
+			expect(result.kept).toBe(1);
+		});
+	});
 });

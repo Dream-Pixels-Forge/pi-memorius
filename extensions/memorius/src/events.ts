@@ -96,11 +96,16 @@ export function registerEventHandlers(
 			// Build safe context blocks — sanitize content to prevent prompt injection
 			const contextBlocks = results
 				.map((r, i) => {
+					// Strip fake context tags to prevent injection, but preserve legitimate content
 					const safeContent = r.content
-						.replace(/<\/?memory_context>/gi, "")
-						.replace(/<\/?memorius_context>/gi, "")
-						.replace(/</g, "&lt;")
-						.replace(/>/g, "&gt;");
+						.replace(
+							/<memorius_context[\s\S]*?<\/memorius_context>/gi,
+							"[REDACTED]",
+						)
+						.replace(
+							/<memory_context[\s\S]*?<\/memory_context>/gi,
+							"[REDACTED]",
+						);
 					return `<memory_context index="${i + 1}" relevance="${(r.relevance * 100).toFixed(0)}%">
 ${safeContent}
 </memory_context>`;

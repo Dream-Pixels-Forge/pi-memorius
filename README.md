@@ -59,6 +59,7 @@ Once installed, pi-memorius works automatically:
 | `/memorius-ls [--vault X]` | List vault structure |
 | `/memorius-sync-obsidian` | Sync with Obsidian vault |
 | `/memorius-serve-mcp` | Start MCP server |
+| `/memorius-extract` | Extract memories from text |
 | `/memorius-interview` | Pre-fill your profile |
 
 ### Tools for the LLM

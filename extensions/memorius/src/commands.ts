@@ -13,7 +13,41 @@ import { formatInsights } from "./format.js";
 import type { GraphManager } from "./graph.js";
 import type { MemoriusStore } from "./store.js";
 
-// ─── Module ──────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Parse command arguments, handling quoted strings and --flags.
+ * Content before the first --flag is the main argument.
+ * Flags are key-value pairs: --key value
+ */
+function parseArgs(args: string): {
+	content: string;
+	flags: Record<string, string>;
+} {
+	const flags: Record<string, string> = {};
+	let content = args;
+
+	// Match --key value patterns, respecting quoted values
+	const flagRegex = / --(\w+)\s+(?:"([^"]*)"|([^\s]+))/g;
+	let match: RegExpExecArray | null = flagRegex.exec(args);
+
+	while (match !== null) {
+		const key = match[1];
+		const val = match[2] ?? match[3];
+		if (key && val) {
+			flags[key] = val;
+		}
+		match = flagRegex.exec(args);
+	}
+
+	// Content is everything before the first --flag
+	const firstFlagIndex = args.indexOf(" --");
+	if (firstFlagIndex > 0) {
+		content = args.slice(0, firstFlagIndex).trim();
+	}
+
+	return { content: content.trim(), flags };
+}
 
 export function registerCommands(
 	pi: ExtensionAPI,
@@ -62,17 +96,11 @@ export function registerCommands(
 				return;
 			}
 
-			const parts = args.split(" --");
-			const query = parts[0]?.trim() ?? args;
-			let n = config.maxSearchResults;
-			let shelf: string | undefined;
-
-			for (let i = 1; i < parts.length; i++) {
-				const [key, ...vals] = parts[i].split(" ");
-				const val = vals.join(" ").trim();
-				if (key === "n" && val) n = parseInt(val, 10) || n;
-				if (key === "shelf" && val) shelf = val;
-			}
+			const { content: query, flags } = parseArgs(args);
+			const n = flags.n
+				? parseInt(flags.n, 10) || config.maxSearchResults
+				: config.maxSearchResults;
+			const shelf = flags.shelf;
 
 			const results = await store.search(query, n, config.vault, shelf);
 			if (!results || results.length === 0) {
@@ -100,15 +128,10 @@ export function registerCommands(
 				return;
 			}
 
-			const parts = args.split(" --");
-			const topic = parts[0]?.trim() ?? args;
-			let max = config.maxContextItems;
-
-			for (let i = 1; i < parts.length; i++) {
-				const [key, ...vals] = parts[i].split(" ");
-				const val = vals.join(" ").trim();
-				if (key === "max" && val) max = parseInt(val, 10) || max;
-			}
+			const { content: topic, flags } = parseArgs(args);
+			const max = flags.max
+				? parseInt(flags.max, 10) || config.maxContextItems
+				: config.maxContextItems;
 
 			const results = await store.context(topic, max, config.vault);
 			if (!results || results.length === 0) {
@@ -222,19 +245,12 @@ export function registerCommands(
 				return;
 			}
 
-			const parts = args.split(" --");
-			const title = parts[0]?.trim() ?? "Untitled";
-			let summary = "";
-			let content = "";
-			let exchangeCount: number | undefined;
-
-			for (let i = 1; i < parts.length; i++) {
-				const [key, ...vals] = parts[i].split(" ");
-				const val = vals.join(" ").trim();
-				if (key === "summary" && val) summary = val;
-				if (key === "content" && val) content = val;
-				if (key === "exchange-count" && val) exchangeCount = parseInt(val, 10);
-			}
+			const { content: title, flags } = parseArgs(args);
+			const summary = flags.summary ?? "";
+			const content = flags.content ?? "";
+			const exchangeCount = flags["exchange-count"]
+				? parseInt(flags["exchange-count"], 10)
+				: undefined;
 
 			const sessionId = `session-${Date.now()}`;
 			await diary.writeDiary(
@@ -334,12 +350,30 @@ export function registerCommands(
 		},
 	});
 
+	// ── /memorius-extract ────────────────────────────────────────────────────
+	pi.registerCommand("memorius-extract", {
+		description: "Extract structured memories from text",
+		handler: async (args: string, ctx: ExtensionCommandContext) => {
+			const text = args.trim();
+			if (!text) {
+				ctx.ui.notify(
+					"Usage: /memorius-extract <text to extract from>",
+					"warning",
+				);
+				return;
+			}
+			const vault = config.vault;
+			const result = await store.extract(text, vault);
+			ctx.ui.notify(`📤 ${result}`, "info");
+		},
+	});
+
 	// ── /memorius-interview ───────────────────────────────────────────────────
 	pi.registerCommand("memorius-interview", {
 		description: "Pre-fill user profile via interview",
 		handler: async (_args: string, ctx: ExtensionCommandContext) => {
 			ctx.ui.notify(
-				"Starting memorius interview... (stub - use memorius CLI directly for now)",
+				"Starting memorius interview... (use memorius CLI: memorius profile new)",
 				"info",
 			);
 		},

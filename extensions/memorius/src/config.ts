@@ -30,6 +30,8 @@ export interface MemoriusConfig {
 	memoriusCliPath: string;
 }
 
+const isWindows = process.platform === "win32";
+
 export const DEFAULT_CONFIG: MemoriusConfig = {
 	vault: "main",
 	autoStore: true,
@@ -41,7 +43,9 @@ export const DEFAULT_CONFIG: MemoriusConfig = {
 	consolidationThreshold: 0.85,
 	maxSearchResults: 10,
 	maxContextItems: 5,
-	memoriusCliPath: join(homedir(), ".local/bin/memorius"),
+	memoriusCliPath: isWindows
+		? join(homedir(), ".local", "bin", "memorius.exe")
+		: join(homedir(), ".local", "bin", "memorius"),
 };
 
 const AGENT_ROOT = join(homedir(), ".pi/agent");

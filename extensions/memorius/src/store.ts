@@ -30,6 +30,9 @@ import type {
 const IDENTIFIER_RE = /^[a-zA-Z0-9_\-./]+$/;
 
 function validateIdentifier(value: string, name: string): void {
+	if (!value) {
+		throw new Error(`${name} cannot be empty`);
+	}
 	if (!IDENTIFIER_RE.test(value)) {
 		throw new Error(
 			`Invalid ${name}: "${value}". Only letters, numbers, hyphens, underscores, dots, and slashes allowed.`,
@@ -308,22 +311,6 @@ export class MemoriusStore {
 	/** Export memories to Obsidian vault. Accepts optional AbortSignal. */
 	async obsidianExport(vault?: string, signal?: AbortSignal): Promise<string> {
 		const args = ["obsidian", "export"];
-		if (vault) {
-			validateIdentifier(vault, "vault");
-			args.push("--vault", vault);
-		}
-		return execCliAsync(this.cli, args, signal);
-	}
-
-	// ─── Session Profile ───────────────────────────────────────────────────────
-
-	/** Get session profile context. Accepts optional AbortSignal. */
-	async sessionProfile(
-		sessionId: string,
-		vault?: string,
-		signal?: AbortSignal,
-	): Promise<string> {
-		const args = ["profile", sessionId];
 		if (vault) {
 			validateIdentifier(vault, "vault");
 			args.push("--vault", vault);

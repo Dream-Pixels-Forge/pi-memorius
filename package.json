@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "description": "🧠 Vector-powered persistent memory extension for Pi-agent — semantic search, knowledge graph, fact checking, session diaries, memory mining, context injection, and Obsidian sync.",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "extensions/memorius/src/index.ts",
   "files": [
-    "src",
+    "extensions/memorius/src",
     "README.md",
     "LICENSE"
   ],
   "pi": {
     "extensions": [
-      "./src/index.ts"
+      "./extensions/memorius/src/index.ts"
     ]
   },
   "keywords": [
@@ -39,9 +39,9 @@
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "biome check src/",
-    "lint:fix": "biome check --apply src/",
-    "format": "biome format --write src/",
+    "lint": "biome check extensions/memorius/src/",
+    "lint:fix": "biome check --write extensions/memorius/src/",
+    "format": "biome format --write extensions/memorius/src/",
     "check": "npm run typecheck && npm run lint && npm run test",
     "prepublishOnly": "npm run check"
   },
